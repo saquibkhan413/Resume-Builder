@@ -7,7 +7,7 @@ interface ResumePreviewProps {
 }
 
 const ResumePreview = ({ data }: ResumePreviewProps) => {
-  const { personalDetails, workExperience, education, skills } = data;
+  const { personalDetails, workExperience, education, skills, selectedTemplate } = data;
 
   const handleDownload = () => {
     // TODO: Implement PDF generation
@@ -24,7 +24,12 @@ const ResumePreview = ({ data }: ResumePreviewProps) => {
     <div className="space-y-4">
       {/* Download Button */}
       <div className="flex justify-between items-center">
-        <h3 className="font-semibold">Resume Preview</h3>
+        <div>
+          <h3 className="font-semibold">Resume Preview</h3>
+          {selectedTemplate && (
+            <p className="text-xs text-muted-foreground">{selectedTemplate.name} Template</p>
+          )}
+        </div>
         <Button onClick={handleDownload} size="sm">
           <Download className="h-4 w-4 mr-2" />
           Download PDF

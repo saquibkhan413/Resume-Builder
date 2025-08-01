@@ -1,83 +1,31 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Search, Eye, Download } from "lucide-react";
+import { Search } from "lucide-react";
+import { resumeTemplates, templateCategories, Template } from "@/data/templates";
+import TemplateCard from "@/components/templates/TemplateCard";
+import TemplatePreviewModal from "@/components/templates/TemplatePreviewModal";
 
 const Templates = () => {
+  const navigate = useNavigate();
   const [searchTerm, setSearchTerm] = useState("");
   const [categoryFilter, setCategoryFilter] = useState("all");
+  const [previewTemplate, setPreviewTemplate] = useState<Template | null>(null);
+  const [isPreviewOpen, setIsPreviewOpen] = useState(false);
 
-  const templates = [
-    {
-      id: 1,
-      name: "Modern Professional",
-      category: "modern",
-      description: "Clean and contemporary design perfect for tech roles",
-      features: ["ATS-Friendly", "Modern Design", "2-Column Layout"],
-      preview: "/api/placeholder/300/400",
-      popular: true
-    },
-    {
-      id: 2,
-      name: "Classic Executive",
-      category: "classic",
-      description: "Traditional format ideal for senior positions",
-      features: ["Professional", "Executive Level", "Traditional"],
-      preview: "/api/placeholder/300/400",
-      popular: false
-    },
-    {
-      id: 3,
-      name: "Creative Designer",
-      category: "creative",
-      description: "Stylish template for creative professionals",
-      features: ["Creative", "Portfolio Ready", "Visual Impact"],
-      preview: "/api/placeholder/300/400",
-      popular: true
-    },
-    {
-      id: 4,
-      name: "Minimal Clean",
-      category: "minimal",
-      description: "Simple and elegant design for any industry",
-      features: ["Minimal", "Clean Layout", "Universal"],
-      preview: "/api/placeholder/300/400",
-      popular: false
-    },
-    {
-      id: 5,
-      name: "Tech Specialist",
-      category: "modern",
-      description: "Perfect for software developers and IT professionals",
-      features: ["Tech-Focused", "Skills Highlight", "Modern"],
-      preview: "/api/placeholder/300/400",
-      popular: true
-    },
-    {
-      id: 6,
-      name: "Academic Scholar",
-      category: "academic",
-      description: "Designed for academic and research positions",
-      features: ["Academic", "Research-Focused", "Publications"],
-      preview: "/api/placeholder/300/400",
-      popular: false
-    }
-  ];
+  const handlePreview = (template: Template) => {
+    setPreviewTemplate(template);
+    setIsPreviewOpen(true);
+  };
 
-  const categories = [
-    { value: "all", label: "All Templates" },
-    { value: "modern", label: "Modern" },
-    { value: "classic", label: "Classic" },
-    { value: "creative", label: "Creative" },
-    { value: "minimal", label: "Minimal" },
-    { value: "academic", label: "Academic" }
-  ];
+  const handleSelectTemplate = (template: Template) => {
+    // Navigate to create resume with selected template
+    navigate(`/create?template=${template.id}`);
+  };
 
-  const filteredTemplates = templates.filter(template => {
+  const filteredTemplates = resumeTemplates.filter(template => {
     const matchesSearch = template.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          template.description.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesCategory = categoryFilter === "all" || template.category === categoryFilter;
@@ -113,7 +61,7 @@ const Templates = () => {
               <SelectValue placeholder="Category" />
             </SelectTrigger>
             <SelectContent>
-              {categories.map((category) => (
+              {templateCategories.map((category) => (
                 <SelectItem key={category.value} value={category.value}>
                   {category.label}
                 </SelectItem>
@@ -125,74 +73,42 @@ const Templates = () => {
         {/* Templates Grid */}
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
           {filteredTemplates.map((template) => (
-            <Card key={template.id} className="group hover:shadow-lg transition-shadow">
-              <CardContent className="p-0">
-                {/* Template Preview */}
-                <div className="relative aspect-[3/4] bg-gradient-to-br from-primary/5 to-secondary/5 rounded-t-lg overflow-hidden">
-                  <div className="absolute inset-4 bg-card rounded-lg shadow-sm p-4">
-                    <div className="space-y-3">
-                      <div className="h-3 bg-primary/20 rounded w-2/3"></div>
-                      <div className="space-y-1">
-                        <div className="h-2 bg-muted rounded w-full"></div>
-                        <div className="h-2 bg-muted rounded w-3/4"></div>
-                      </div>
-                      <div className="space-y-1">
-                        <div className="h-2 bg-muted rounded w-full"></div>
-                        <div className="h-2 bg-muted rounded w-5/6"></div>
-                        <div className="h-2 bg-muted rounded w-4/5"></div>
-                      </div>
-                    </div>
-                  </div>
-                  
-                  {/* Hover Overlay */}
-                  <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center space-x-2">
-                    <Button size="sm" variant="secondary">
-                      <Eye className="w-4 h-4 mr-2" />
-                      Preview
-                    </Button>
-                    <Button size="sm" asChild>
-                      <Link to="/create">
-                        <Download className="w-4 h-4 mr-2" />
-                        Use Template
-                      </Link>
-                    </Button>
-                  </div>
-
-                  {/* Popular Badge */}
-                  {template.popular && (
-                    <Badge className="absolute top-2 right-2">
-                      Popular
-                    </Badge>
-                  )}
-                </div>
-
-                {/* Template Info */}
-                <div className="p-4 space-y-3">
-                  <div>
-                    <h3 className="font-semibold text-lg">{template.name}</h3>
-                    <p className="text-sm text-muted-foreground">{template.description}</p>
-                  </div>
-
-                  {/* Features */}
-                  <div className="flex flex-wrap gap-1">
-                    {template.features.map((feature) => (
-                      <Badge key={feature} variant="secondary" className="text-xs">
-                        {feature}
-                      </Badge>
-                    ))}
-                  </div>
-
-                  {/* Action Button */}
-                  <Button className="w-full" asChild>
-                    <Link to="/create">
-                      Use This Template
-                    </Link>
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
+            <TemplateCard
+              key={template.id}
+              template={template}
+              onPreview={handlePreview}
+              onSelect={handleSelectTemplate}
+            />
           ))}
         </div>
+
+        {/* No Results */}
+        {filteredTemplates.length === 0 && (
+          <div className="text-center py-12">
+            <Search className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
+            <h3 className="text-xl font-semibold mb-2">No templates found</h3>
+            <p className="text-muted-foreground mb-4">
+              Try adjusting your search terms or category filters
+            </p>
+            <Button 
+              variant="outline" 
+              onClick={() => {
+                setSearchTerm("");
+                setCategoryFilter("all");
+              }}
+            >
+              Clear Filters
+            </Button>
+          </div>
+        )}
+
+        {/* Template Preview Modal */}
+        <TemplatePreviewModal
+          template={previewTemplate}
+          isOpen={isPreviewOpen}
+          onClose={() => setIsPreviewOpen(false)}
+          onSelect={handleSelectTemplate}
+        />
 
         {/* CTA Section */}
         <div className="text-center bg-card rounded-lg p-8">

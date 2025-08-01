@@ -1,4 +1,5 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useSearchParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
@@ -8,10 +9,15 @@ import WorkExperienceForm from "@/components/resume/WorkExperienceForm";
 import EducationForm from "@/components/resume/EducationForm";
 import SkillsForm from "@/components/resume/SkillsForm";
 import ResumePreview from "@/components/resume/ResumePreview";
+import { getTemplateById } from "@/data/templates";
 
 const CreateResume = () => {
+  const [searchParams] = useSearchParams();
+  const templateId = searchParams.get('template');
+  const selectedTemplate = templateId ? getTemplateById(templateId) : null;
   const [currentStep, setCurrentStep] = useState(0);
   const [resumeData, setResumeData] = useState({
+    selectedTemplate: selectedTemplate,
     personalDetails: {
       fullName: "",
       email: "",
@@ -23,6 +29,13 @@ const CreateResume = () => {
     education: [],
     skills: []
   });
+
+  // Update template when URL changes
+  useEffect(() => {
+    if (selectedTemplate && selectedTemplate.id !== resumeData.selectedTemplate?.id) {
+      setResumeData(prev => ({ ...prev, selectedTemplate }));
+    }
+  }, [selectedTemplate, resumeData.selectedTemplate?.id]);
 
   const steps = [
     { title: "Personal Details", component: PersonalDetailsForm },
@@ -63,6 +76,11 @@ const CreateResume = () => {
           <div className="flex items-center space-x-2 mb-4">
             <FileText className="h-6 w-6 text-primary" />
             <h1 className="text-2xl font-bold">Create Your Resume</h1>
+            {selectedTemplate && (
+              <span className="text-sm text-muted-foreground">
+                • Using {selectedTemplate.name} template
+              </span>
+            )}
           </div>
           
           {/* Progress */}
