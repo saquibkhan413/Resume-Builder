@@ -1,17 +1,45 @@
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Download, FileText, Mail, Phone, MapPin } from "lucide-react";
+import { Download, FileText, Mail, Phone, MapPin, Loader2 } from "lucide-react";
+import { PDFGenerator, ResumeData } from "@/utils/pdfGenerator";
+import { toast } from "@/hooks/use-toast";
 
 interface ResumePreviewProps {
-  data: any;
+  data: ResumeData;
 }
 
 const ResumePreview = ({ data }: ResumePreviewProps) => {
   const { personalDetails, workExperience, education, skills, selectedTemplate } = data;
+  const [isGeneratingPDF, setIsGeneratingPDF] = useState(false);
 
-  const handleDownload = () => {
-    // TODO: Implement PDF generation
-    console.log("Downloading resume...", data);
+  const handleDownload = async () => {
+    if (!personalDetails.fullName.trim()) {
+      toast({
+        title: "Missing Information",
+        description: "Please enter your full name before downloading.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setIsGeneratingPDF(true);
+    try {
+      await PDFGenerator.generatePDF(data);
+      toast({
+        title: "Success!",
+        description: "Your resume has been downloaded successfully.",
+      });
+    } catch (error) {
+      console.error('PDF generation error:', error);
+      toast({
+        title: "Download Failed",
+        description: "There was an error generating your resume. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsGeneratingPDF(false);
+    }
   };
 
   const formatDate = (dateString: string) => {
@@ -30,9 +58,18 @@ const ResumePreview = ({ data }: ResumePreviewProps) => {
             <p className="text-xs text-muted-foreground">{selectedTemplate.name} Template</p>
           )}
         </div>
-        <Button onClick={handleDownload} size="sm">
-          <Download className="h-4 w-4 mr-2" />
-          Download PDF
+        <Button onClick={handleDownload} size="sm" disabled={isGeneratingPDF}>
+          {isGeneratingPDF ? (
+            <>
+              <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+              Generating PDF...
+            </>
+          ) : (
+            <>
+              <Download className="h-4 w-4 mr-2" />
+              Download PDF
+            </>
+          )}
         </Button>
       </div>
 

@@ -1,4 +1,4 @@
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Download, X } from "lucide-react";
@@ -20,7 +20,7 @@ const TemplatePreviewModal = ({ template, isOpen, onClose, onSelect }: TemplateP
         <DialogHeader className="flex flex-row items-center justify-between">
           <div>
             <DialogTitle className="text-2xl">{template.name}</DialogTitle>
-            <p className="text-muted-foreground mt-1">{template.description}</p>
+            <DialogDescription className="mt-1">{template.description}</DialogDescription>
           </div>
           <Button variant="ghost" size="icon" onClick={onClose}>
             <X className="h-4 w-4" />
